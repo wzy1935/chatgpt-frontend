@@ -1,19 +1,17 @@
 import { useState } from 'react'
-
+import hash from 'object-hash'
 
 export default function SideBar({ chosen, chatList, onChange }) {
-  function btnClick(id) {
-    if (chosen !== id) onChange(id)
-  }
 
-
-  const chatListNode = chatList.map(item => (
+  const chatListNode = chatList.map((v, k) => (
     <button
-      key={item.key}
-      className={` px-4 py-2 w-full text-left hover:bg-neutral-800 ${item.key === chosen ? 'bg-neutral-700' : ''} `}
-      onClick={() => btnClick(item.key)}
+      key={hash([v, k])}
+      className={` px-4 py-2 w-full text-left hover:bg-neutral-800 ${k === chosen ? 'bg-neutral-700' : ''} `}
+      onClick={() => {
+        onChange(k)
+      }}
     >
-      {item.title}
+      {v}
     </button>
   ))
 
