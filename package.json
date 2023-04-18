@@ -18,6 +18,10 @@
     "react-markdown": "^8.0.7",
     "react-redux": "^8.0.5",
     "react-scroll-to-bottom": "^4.2.0",
+    "react-syntax-highlighter": "^15.5.0",
+    "rehype-katex": "^6.0.2",
+    "remark-gfm": "^3.0.1",
+    "remark-math": "^5.1.1",
     "sse.js": "^0.5.0",
     "tailwind-scrollbar": "^3.0.0",
     "vite-plugin-svgr": "^2.4.0"

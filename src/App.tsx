@@ -5,6 +5,7 @@ import History from './components/History'
 import StartPage from './components/StartPage'
 import InputField from './components/InputField'
 import Live from './components/Live'
+import Settings from './components/Settings'
 import ScrollToBottom from 'react-scroll-to-bottom'
 
 import chat from './api/chat'
@@ -13,6 +14,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 function App() {
   const dispatch = useDispatch()
+  const [mask, setMask] = useState(null)
 
   let mainPage = null
   let current = useSelector(s => s.main.current)
@@ -20,7 +22,9 @@ function App() {
   let chatList = useSelector(s => s.main.sessions.map(item => item.name))
 
   if (current === null) {
-    mainPage = (<StartPage />)
+    mainPage = (<div className='h-full w-full'>
+      <StartPage />
+    </div>)
   } else {
     mainPage = (<div>
       <History messages={messages}></History>
@@ -30,23 +34,48 @@ function App() {
     )
   }
 
+  let settingsPage = (<Settings
+    onClose={() => setMask(null)}
+  />)
+
+
+  function sideBarOnBtn(eventStr) {
+    if (eventStr === 'settings') {
+      setMask(settingsPage)
+    }
+  }
+
   return (
-    <div className=' h-screen w-screen bg-neutral-50 flex'>
-      <div className=' w-64 h-full hidden'>
+    <div className=' h-screen w-screen bg-gray-50 flex text-gray-900'>
+      <div className=' w-72 h-full'>
         <SideBar
           chatList={chatList}
           chosen={current}
           onChange={(index) => { dispatch(store.setSession({ id: index })) }}
+          onBtn={sideBarOnBtn}
         ></SideBar>
       </div>
       <div className=' w-full relative h-full'>
-        <ScrollToBottom className='overflow-y-auto h-full ' scrollViewClassName='scrollbar scrollbar-thumb-rounded-md scrollbar-thumb-neutral-300 scrollbar-thin'>
+        <ScrollToBottom
+          className='overflow-hidden h-full '
+          scrollViewClassName='scrollbar scrollbar-thumb-rounded-md scrollbar-thumb-gray-300 scrollbar-thin'
+        >
           {mainPage}
         </ScrollToBottom>
         <div className=' w-full absolute bottom-0'>
           <InputField />
         </div>
       </div>
+
+      {/* mask layer */}
+      {mask !== null && (
+        <div className=' absolute h-full w-full'>
+          <div className='absolute bg-gray-500 h-full w-full opacity-50' />
+          <div className='absolute h-full w-full flex justify-center items-center'>
+            {mask}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

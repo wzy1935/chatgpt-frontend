@@ -6,37 +6,14 @@ const mainSlice = createSlice({
   name: 'main',
   initialState: {
     token: import.meta.env.VITE_AI_TOKEN,
-    current: 0,
+    current: null,
     live: {
       inp: '',
-      session: 0,
-      generating: false,
+      id: null, // chat id equals to this only if session never changed
       user: null,
       assistant: null
     },
     sessions: [
-      {
-        name: 'hello',
-        messages: [
-        ]
-      },
-      {
-        name: 'world',
-        messages: [
-          { "role": "system", "content": "You are a helpful assistant." },
-          { "role": "user", "content": "Who won the world series in 2020?" },
-          { "role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020." },
-          { "role": "user", "content": "Where was it played?" },
-          { "role": "system", "content": "You are a helpful assistant." },
-          { "role": "user", "content": "Who won the world series in 2020?" },
-          { "role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020." },
-          { "role": "user", "content": "Where was it played?" },
-          { "role": "system", "content": "You are a helpful assistant." },
-          { "role": "user", "content": "Who won the world series in 2020?" },
-          { "role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020." },
-          { "role": "user", "content": "Where was it played?" },
-        ]
-      }
     ]
   },
   reducers: {
@@ -65,6 +42,7 @@ const mainSlice = createSlice({
     setSession(state, { payload }) {
       if (state.current !== payload.id && payload.id >= 0 && payload.id < state.sessions.length) {
         state.current = payload.id
+        mainSlice.caseReducers.clearLive(state)
       }
     },
 
@@ -72,38 +50,43 @@ const mainSlice = createSlice({
       state.live.inp = payload.inp
     },
 
-    saveLive(state) {
-      if (state.live.session === state.current && state.current !== null) {
-        state.sessions[state.current].messages = state.sessions[state.current].messages.concat([
-          { "role": "user", "content": state.live.user },
-          { "role": "assistant", "content": state.live.assistant }
-        ])
-        state.live.generating = false
+    // finish (terminate chat)
+    saveLive(state, { payload }) {
+      if (state.live.id === payload.id) {
+        if (!payload.discard) {
+          state.sessions[state.current].messages = state.sessions[state.current].messages.concat([
+            { "role": "user", "content": state.live.user },
+            { "role": "assistant", "content": state.live.assistant }
+          ])
+        }
+        state.live.id = null
         state.live.user = null
         state.live.assistant = null
       }
     },
 
-    clearLive(state, { payload }) {
-      if (payload.dest >= 0 && payload.dest < state.sessions.length && payload.dest != state.current) {
-        state.live = {
-          inp: '',
-          session: payload.dest,
-          generating: false,
-          user: null,
-          assistant: null
-        }
+    // terminate chat
+    clearLive(state) {
+      state.live = {
+        inp: '',
+        id: null,
+        user: null,
+        assistant: null
       }
     },
 
+    // running chat
     updateAssistantLive(state, { payload }) {
-      state.live.assistant = payload.content
+      if (payload.id === state.live.id) {
+        state.live.assistant = payload.content
+      }
     },
 
-    submitUserLive(state) {
+    // start chat
+    submitUserLive(state, { payload }) {
+      state.live.id = payload.id
       state.live.user = state.live.inp
       state.live.inp = ''
-      state.live.generating = true
     }
 
   },
