@@ -1,6 +1,5 @@
 import { SSE } from 'sse.js'
 
-
 `
 messages looks like this:
 [
@@ -11,7 +10,7 @@ messages looks like this:
 ]
 `
 
-export default async function (token, messages, onUpdate) {
+function chat(token, messages, onUpdate) {
   let inpObj = {
     "model": "gpt-3.5-turbo",
     "messages": messages,
@@ -19,6 +18,7 @@ export default async function (token, messages, onUpdate) {
   }
 
   let outpStr = ''
+  let lastStr = ''
 
   let source = new SSE('https://api.openai.com/v1/chat/completions', {
     headers: {
@@ -30,6 +30,7 @@ export default async function (token, messages, onUpdate) {
 
   source.onmessage = (e) => {
     if (e.data !== '[DONE]') {
+    
       let respObj = JSON.parse(e.data)
       let delta = respObj.choices[0].delta.content
       if (delta !== undefined) {
@@ -50,4 +51,23 @@ export default async function (token, messages, onUpdate) {
 
 }
 
+function promiseToCallback() {
+  let resolveFunc
+  let promise = new Promise((resolve) => {
+    resolveFunc = resolve
+  })
+  return [promise, resolveFunc]
+}
 
+
+export function initChatPromise() {
+  let [promise, nextResolve] = promiseToCallback()
+  chat((newStr, code) => {
+    let [p, n] = promiseToCallback()
+    nextResolve([[newStr, code], p])
+    nextResolve = n
+  })
+  return promise
+}
+
+export default chat
