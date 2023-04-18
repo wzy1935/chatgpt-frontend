@@ -1,22 +1,49 @@
 import { store } from '../stores/store'
 import { useSelector, useDispatch } from 'react-redux'
+import chat, { initChatPromise } from '../api/chat'
+import { ReactComponent as SendSvg } from '../assets/send.svg'
 
 export default function InputField() {
   let text = useSelector(s => s.main.live.inp)
+  let token = useSelector(s => s.main.token)
+  let msg = useSelector(s => JSON.parse(JSON.stringify(s.main.sessions[s.main.live.session].messages)))
   let dispatch = useDispatch()
 
+  function ask() {
+    dispatch(store.submitUserLive())
+    msg.push({ "role": "user", "content": text })
+    chat(token, msg, (newStr, code) => {
+      if (code === 'RUNNING') {
+        dispatch(store.updateAssistantLive({ content: newStr }))
+      } else {
+        dispatch(store.saveLive())
+      }
+    })
+  }
+
+  function onKeyDown(e) {
+    if (e.ctrlKey && e.key === 'Enter') {
+      ask()
+    }
+  }
+
   return (<div className="w-full bg-gradient-to-b from-transparent py-10 to-white flex items-center justify-center">
-    <textarea
-      value={text}
-      onChange={e => dispatch(store.setInp({ inp: e.target.value }))}
-      className=" shadow-md shadow-neutral-200 border border-neutral-200 rounded-md w-[42rem] h-32 max-h-32 p-4 shrink-0 focus:outline-none focus:ring-2"
-      placeholder="Ctrl+Enter to Send Message"
-    ></textarea>
-    <div className='h-32 ml-2'>
+    <div className='shadow-md bg-white focus-within:ring focus-within:ring-offset-2 shadow-neutral-200 border border-neutral-200 rounded-md w-[42rem] h-32 max-h-32 shrink-0 p-2 flex'>
+      <textarea
+        value={text}
+        onKeyDown={onKeyDown}
+        onChange={e => dispatch(store.setInp({ inp: e.target.value }))}
+        className=" h-full w-full focus:outline-none p-2 resize-none rounded-md"
+        placeholder="Ctrl+Enter to Send Message"
+      ></textarea>
       <button
-        className='h-full bg-teal-400 text-white rounded-md'
-        onClick={() => dispatch(store.submitUserLive())}
-      >SUBMIT</button>
+        className=' h-full p-2 hover:bg-neutral-50 active:bg-neutral-100 rounded-md flex items-center ml-2'
+        onClick={ask}
+      >
+        <SendSvg className='h-4 w-4'></SendSvg>
+      </button>
+
     </div>
+
   </div>)
 }
