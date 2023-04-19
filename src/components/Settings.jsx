@@ -32,7 +32,6 @@ export default function Settings({ onClose }) {
     const newSettings = {
       model, token, maxLength
     }
-    console.log(newSettings)
     dispatch(store.saveSettings({ settings: newSettings }))
     onClose()
   }
