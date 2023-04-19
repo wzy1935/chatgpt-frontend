@@ -47,11 +47,11 @@ function App() {
 
   return (
     <div className=' h-screen w-screen bg-gray-50 flex text-gray-900'>
-      <div className=' w-72 h-full'>
+      <div className=' w-80 h-full'>
         <SideBar
           chatList={chatList}
           chosen={current}
-          onChange={(index) => { dispatch(store.setSession({ id: index })) }}
+          onChange={(index) => {dispatch(store.setSession({ id: index })) }}
           onBtn={sideBarOnBtn}
         ></SideBar>
       </div>

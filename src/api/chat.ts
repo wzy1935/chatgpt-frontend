@@ -10,9 +10,10 @@ messages looks like this:
 ]
 `
 
-function chat(token, messages, onUpdate) {
+function chat(messages, settings, onUpdate) {
   let inpObj = {
-    "model": "gpt-3.5-turbo",
+    "max_tokens": settings.maxLength,
+    "model": settings.model,
     "messages": messages,
     "stream": true
   }
@@ -23,7 +24,7 @@ function chat(token, messages, onUpdate) {
   let source = new SSE('https://api.openai.com/v1/chat/completions', {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${settings.token}`
     },
     payload: JSON.stringify(inpObj)
   })

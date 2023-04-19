@@ -5,7 +5,11 @@ import chat, { initChatPromise } from '../api/chat'
 const mainSlice = createSlice({
   name: 'main',
   initialState: {
-    token: import.meta.env.VITE_AI_TOKEN,
+    settings: {
+      model: 'gpt-3.5-turbo',
+      token: import.meta.env.VITE_AI_TOKEN === undefined ? '' : import.meta.env.VITE_AI_TOKEN,
+      maxLength: 512
+    },
     current: null,
     live: {
       inp: '',
@@ -17,13 +21,8 @@ const mainSlice = createSlice({
     ]
   },
   reducers: {
-    test: (state, { payload }) => {
-      state.current += payload
-    },
-
-    setToken(state, { payload }) {
-      if (payload.token.startsWith('sk-'))
-        state.token = payload.token
+    saveSettings(state, { payload }) {
+      state.settings = payload.settings
     },
 
     newSession(state, { payload }) {
@@ -35,8 +34,14 @@ const mainSlice = createSlice({
     },
 
     removeSession(state, { payload }) {
-      if (state.current === id) state.current = -1
-      state.sessions.splice(payload.index, 1)
+      if (state.current === payload.id) {
+        state.current = null
+      }
+      state.sessions.splice(payload.id, 1)
+    },
+
+    renameSession(state, { payload }) {
+      state.sessions[payload.id].name = payload.name
     },
 
     setSession(state, { payload }) {

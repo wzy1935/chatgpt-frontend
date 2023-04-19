@@ -5,7 +5,7 @@ import { ReactComponent as SendSvg } from '../assets/send.svg'
 
 export default function InputField() {
   let text = useSelector(s => s.main.live.inp)
-  let token = useSelector(s => s.main.token)
+  let settings = useSelector(s => s.main.settings)
   let current = useSelector(s => s.main.current)
   let msg = useSelector(s => s.main.current === null ? [] : JSON.parse(JSON.stringify(s.main.sessions[s.main.current].messages)))
   let dispatch = useDispatch()
@@ -20,7 +20,7 @@ export default function InputField() {
     let uuid = crypto.randomUUID()
     dispatch(store.submitUserLive({id: uuid}))
     msg.push({ "role": "user", "content": text })
-    chat(token, msg, (newStr, code) => {
+    chat(msg, settings, (newStr, code) => {
       if (code === 'RUNNING') {
         dispatch(store.updateAssistantLive({ id: uuid, content: newStr }))
       } else {
@@ -36,7 +36,7 @@ export default function InputField() {
   }
 
   return (<div className="w-full bg-gradient-to-b from-transparent py-10 to-white flex items-center justify-center">
-    <div className='shadow-md bg-white focus-within:ring focus-within:ring-offset-2 shadow-gray-200 border border-gray-200 rounded-md w-[42rem] h-32 max-h-32 shrink-0 p-2 flex'>
+    <div className='shadow-md bg-white focus-within:ring-2 focus-within:ring-offset-2 shadow-gray-200 border border-gray-200 rounded-md w-[42rem] h-32 max-h-32 shrink-0 p-2 flex'>
       <textarea
         value={text}
         onKeyDown={onKeyDown}
