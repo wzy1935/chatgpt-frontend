@@ -1,6 +1,7 @@
 import { configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { useSelector, useDispatch } from 'react-redux'
 import chat, { initChatPromise } from '../api/chat'
+import { getSavedState } from '../api/save'
 
 const mainSlice = createSlice({
   name: 'main',
@@ -21,8 +22,28 @@ const mainSlice = createSlice({
     ]
   },
   reducers: {
+    loadState(state, { payload }) {
+      state.settings = payload.savedState.settings
+      state.current = payload.savedState.current
+      state.live = payload.savedState.live
+      state.sessions = payload.savedState.sessions
+    },
+
+    resetState(state) {
+      const initialState = mainSlice.getInitialState()
+      state.settings = initialState.settings
+      state.current = initialState.current
+      state.live = initialState.live
+      state.sessions = initialState.sessions
+    },
+
+    saveState(state) {
+      localStorage.setItem('data', JSON.stringify(getSavedState(state), undefined, 2))
+    },
+
     saveSettings(state, { payload }) {
       state.settings = payload.settings
+      mainSlice.caseReducers.saveState(state)
     },
 
     newSession(state, { payload }) {
@@ -38,10 +59,12 @@ const mainSlice = createSlice({
         state.current = null
       }
       state.sessions.splice(payload.id, 1)
+      mainSlice.caseReducers.saveState(state)
     },
 
     renameSession(state, { payload }) {
       state.sessions[payload.id].name = payload.name
+      mainSlice.caseReducers.saveState(state)
     },
 
     setSession(state, { payload }) {
@@ -68,6 +91,7 @@ const mainSlice = createSlice({
         state.live.user = null
         state.live.assistant = null
       }
+      mainSlice.caseReducers.saveState(state)
     },
 
     // terminate chat

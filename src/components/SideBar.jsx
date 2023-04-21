@@ -116,7 +116,7 @@ export default function SideBar({ chosen, chatList, onChange, onBtn }) {
         onClick={() => onBtn('settings')}
       ><SettingsSvg className='h-4 w-4 mr-4' />Settings</button>
       <button
-        className='px-4 py-3 w-full rounded-md text-left hover:bg-gray-800 flex items-center hidden'
+        className='px-4 py-3 w-full rounded-md text-left hover:bg-gray-800 flex items-center'
         onClick={() => onBtn('data')}
       ><DataSvg className='h-4 w-4 mr-4' />Local data</button>
     </div>

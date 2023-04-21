@@ -3,11 +3,13 @@ import { useSelector, useDispatch } from 'react-redux'
 import chat, { initChatPromise } from '../api/chat'
 import { ReactComponent as SendSvg } from '../assets/send.svg'
 
+
 export default function InputField() {
   let text = useSelector(s => s.main.live.inp)
   let settings = useSelector(s => s.main.settings)
   let current = useSelector(s => s.main.current)
   let msg = useSelector(s => s.main.current === null ? [] : JSON.parse(JSON.stringify(s.main.sessions[s.main.current].messages)))
+  let state = useSelector(s => s.main)
   let dispatch = useDispatch()
 
   function ask() {
